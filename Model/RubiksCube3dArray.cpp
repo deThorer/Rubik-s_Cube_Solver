@@ -2,6 +2,10 @@
 // Created by Lakshya Mittal on 17-12-2021.
 //
 
+// Header-style translation unit: the whole class is defined inline here and
+// this file is #included by the solvers, so guard against double inclusion.
+#pragma once
+
 #include "RubiksCube.h"
 
 class RubiksCube3dArray : public RubiksCube {

@@ -1,18 +1,30 @@
 
 
 
+// Header-style translation unit: the whole class is defined inline here and
+// this file is #included by the solvers, so guard against double inclusion.
+#pragma once
+
 #include "RubiksCube.h"
 
 class RubiksCubeBitboard : public RubiksCube {
 
 private:
-    uint64_t solved_side_config[6]{};
+    // Per-cube state is only `bitboard` (6 x 64 bits = 48 bytes). Everything
+    // below is shared by all instances, so it is static: the BFS that builds the
+    // pattern database keeps tens of millions of cubes in a queue, and storing
+    // these tables per object roughly tripled its memory use.
 
-    int arr[3][3] = {{0, 1, 2},
+    // Solved face `side`: all 8 stickers hold the one-hot colour (1 << side).
+    static constexpr uint64_t solvedSide(int side) {
+        return 0x0101010101010101ULL * (1ULL << side);
+    }
+
+    static constexpr int arr[3][3] = {{0, 1, 2},
                      {7, 8, 3},
                      {6, 5, 4}};
 
-    uint64_t one_8 = (1 << 8) - 1, one_24 = (1 << 24) - 1;
+    static constexpr uint64_t one_8 = (1ULL << 8) - 1, one_24 = (1ULL << 24) - 1;
 
     void rotateFace(int ind) {
         uint64_t side = bitboard[ind];
@@ -83,7 +95,6 @@ public:
             for (int faceIdx = 0; faceIdx < 8; faceIdx++) {
                 bitboard[side] |= clr << (8 * faceIdx);
             }
-            solved_side_config[side] = bitboard[side];
         }
     }
 
@@ -104,7 +115,7 @@ public:
 
     bool isSolved() const override {
         for (int i = 0; i < 6; i++) {
-            if (solved_side_config[i] != bitboard[i]) return false;
+            if (solvedSide(i) != bitboard[i]) return false;
         }
         return true;
     }

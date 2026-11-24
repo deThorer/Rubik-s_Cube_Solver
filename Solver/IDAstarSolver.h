@@ -84,7 +84,8 @@ public:
 
     IDAstarSolver(T _rubiksCube, string fileName) {
         rubiksCube = _rubiksCube;
-        cornerDB.fromFile(fileName);
+        if (!cornerDB.fromFile(fileName))
+            throw runtime_error("Could not open corner pattern database: " + fileName);
     }
 
     vector<RubiksCube::MOVE> solve() {

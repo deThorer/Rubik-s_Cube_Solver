@@ -6,14 +6,14 @@
 
 using namespace std;
 
-CornerDBMaker::CornerDBMaker(string _fileName) {
-    fileName = _fileName;
-}
+// The BFS below stops at depth 8, so any corner state it never reaches is at
+// least 9 moves from solved. Initialising every nibble to 9 (0x99 = two
+// nibbles of 9) keeps the heuristic admissible. With the old 0xFF default,
+// unreached states read as 15, which over-estimates and breaks IDA*.
+CornerDBMaker::CornerDBMaker(string _fileName) : CornerDBMaker(_fileName, 0x99) {}
 
-CornerDBMaker::CornerDBMaker(string _fileName, uint8_t init_val) {
-    fileName = _fileName;
-    cornerDB = CornerPatternDatabase(init_val);
-}
+CornerDBMaker::CornerDBMaker(string _fileName, uint8_t init_val)
+        : fileName(_fileName), cornerDB(init_val) {}
 
 bool CornerDBMaker::bfsAndStore() {
     RubiksCubeBitboard cube;
