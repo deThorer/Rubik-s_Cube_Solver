@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Build output and generated pattern databases
+build/
+cmake-build-*/
+Databases/
+.idea/

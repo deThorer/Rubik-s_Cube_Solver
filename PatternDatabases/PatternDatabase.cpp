@@ -62,7 +62,7 @@ void PatternDatabase::toFile(const string &filePath) const {
     ofstream writer(filePath, ios::out | ios::binary | ios::trunc);
 
     if(!writer.is_open())
-        throw "Failed to open the file to write";
+        throw runtime_error("Failed to open the file to write: " + filePath);
 
     writer.write(
             reinterpret_cast<const char*>(this->database.data()),
@@ -76,7 +76,9 @@ void PatternDatabase::toFile(const string &filePath) const {
 // else return false
 
 bool PatternDatabase::fromFile(const string &filePath) {
-    ifstream reader(filePath, ios::in | ios::ate);
+    // ios::binary is required: in text mode Windows rewrites \r\n bytes and
+    // the nibble data gets corrupted.
+    ifstream reader(filePath, ios::in | ios::binary | ios::ate);
 
     if(!reader.is_open())
         return false;
@@ -85,7 +87,7 @@ bool PatternDatabase::fromFile(const string &filePath) {
 
     if(fileSize != this->database.storageSize()){
         reader.close();
-        throw "Database corrupt! Failed to open Reader";
+        throw runtime_error("Database corrupt (unexpected size): " + filePath);
     }
 
     reader.seekg(0, ios::beg);
